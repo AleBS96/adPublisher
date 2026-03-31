@@ -6,10 +6,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AdDto {
+public class AdDTO {
 
     @CsvBindByPosition(position = 0)
-    private Double price;
+    private String price;
 
     @CsvBindByPosition(position = 1)
     private String currency;
@@ -19,5 +19,4 @@ public class AdDto {
 
     @CsvBindByPosition(position = 3)
     private String body;
-
 }

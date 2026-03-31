@@ -2,14 +2,14 @@ package com.lacuevita305.adPublisher.services.mapper;
 
 import com.lacuevita305.adPublisher.enums.PublishStatus;
 import com.lacuevita305.adPublisher.persistence.entities.Ad;
-import com.lacuevita305.adPublisher.services.dto.AdDto;
+import com.lacuevita305.adPublisher.services.dto.AdDTO;
 import org.springframework.stereotype.Component;
 
 
 @Component
-public class AdDtotoAd implements MapperInterface <AdDto, Ad> {
+public class AdDtotoAd implements MapperInterface <AdDTO, Ad> {
     @Override
-    public Ad map(AdDto in) {
+    public Ad map(AdDTO in) {
 
         Ad ad = new Ad();
 
@@ -17,8 +17,8 @@ public class AdDtotoAd implements MapperInterface <AdDto, Ad> {
        ad.setCurrency(in.getCurrency());
        ad.setTitle(in.getTitle());
        ad.setBody(in.getBody());
-       ad.setCategory("");
-       ad.setPublishStatus(PublishStatus.NOT_PUBLISHED);
+       ad.setProductName("");
+       ad.setPublishStatus(PublishStatus.NOT_PUBLISHED.getValue());
 
        return ad;
     }
