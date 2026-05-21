@@ -47,21 +47,13 @@ public class Utils {
 
     public static boolean openLinkInNewWindow(WebDriver driver, String url) {
         try {
-            // Guarda los handles actuales
-            Set<String> handlesAntes = driver.getWindowHandles();
-
-            // Abre nueva pestaña
-            WebDriver nuevaPestana = driver.switchTo().newWindow(WindowType.TAB);
-            nuevaPestana.get(url);
-
-            // Comprueba que se creó la nueva pestaña
-            Set<String> handlesDespues = driver.getWindowHandles();
-            if (handlesDespues.size() <= handlesAntes.size()) return false;
+            driver.get(url);
 
             // Espera hasta que la página termine de cargarse
-            new WebDriverWait(nuevaPestana, Duration.ofSeconds(15))
+            new WebDriverWait(driver, Duration.ofSeconds(10))
                     .until(webDriver -> ((JavascriptExecutor) webDriver)
                             .executeScript("return document.readyState").equals("complete"));
+            UtilsHumanActions.closeGoogleVignetteIfPresent(driver);
 
             return true;
 
@@ -175,42 +167,6 @@ public class Utils {
         } else {
             System.out.println("Elemento no presente");
         }
-    }
-
-    public static void closeOldWindows(WebDriver driver) {
-
-        // Obtener todos los handles (identificadores de las ventanas)
-        Set<String> handles = driver.getWindowHandles();
-        System.out.println("numero de ventanas " + handles.size());
-
-        UtilsHumanActions.closeGoogleVignetteIfPresent(driver);
-        // Si solo hay una, no hacemos nada
-        if (handles.size() <= 1) return;
-
-        // Convertir el Set a una lista para poder acceder por índice
-        List<String> listaVentanas = new ArrayList<>(handles);
-
-        // La última ventana será la más reciente
-        String ventanaMasReciente = listaVentanas.get(listaVentanas.size() - 1);
-
-        // Recorremos todas las demás y las cerramos
-        for (String handle : listaVentanas) {
-
-            driver.switchTo().window(handle);
-            String url = driver.getCurrentUrl();
-            // Ignorar páginas internas de Chrome
-            if (url.startsWith("chrome:")) {
-                continue;
-            }
-
-            if (!handle.equals(ventanaMasReciente)) {
-                driver.switchTo().window(handle);
-                driver.close();
-            }
-        }
-
-        // Volvemos a la más reciente para seguir trabajando
-        driver.switchTo().window(ventanaMasReciente);
     }
 
     public static String getRandomImagePath(String product) throws IOException {

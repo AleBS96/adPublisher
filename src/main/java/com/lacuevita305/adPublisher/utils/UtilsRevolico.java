@@ -64,7 +64,7 @@ public class UtilsRevolico {
             UtilsHumanActions.humanScrollAndClick(webDriver,categorySelector.get());
 
             Optional<WebElement> categoryButton;
-            categoryButton = UtilsHumanActions.waitForElementByTextAsHuman(webDriver,WebElementsEnum.BUTTON.getValue(),"Aceptar",10);
+            categoryButton = UtilsHumanActions.waitForElementByTextAsHuman(webDriver,WebElementsEnum.BUTTON.getValue(),"Aceptar",20);
             if(categoryButton.isPresent()){
                 UtilsHumanActions.humanScrollAndClick(webDriver,categoryButton.get());
             }

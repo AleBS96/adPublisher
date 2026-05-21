@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -18,7 +19,7 @@ public interface AdRepository extends BaseRepository<Ad,Long>{
 
     boolean existsByTitleAndBody(String title, String body);
     List<Ad> findByProductName(String productName, Pageable pageable);
-    List<Ad> findByProductNameAndPublishStatus(String productName,String status, Pageable pageable);
+    Optional<Ad> findFirstByProductNameAndPublishStatus(String productName, String status);
     @Transactional
     @Modifying
     @Query(

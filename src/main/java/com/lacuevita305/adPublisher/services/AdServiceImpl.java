@@ -61,7 +61,7 @@ public class AdServiceImpl extends BaseServiceImpl <Ad, Long> implements AdServi
 
             for (AdDTO dto : csvToBean) {
 
-                if (!adRepository.existsByTitleAndBody(dto.getTitle(), dto.getBody())) {
+                if (adRepository.existsByTitleAndBody(dto.getTitle(), dto.getBody())) {
                     Ad ad = mapper.map(dto);
                     ad.setProductName(product);
                     adRepository.save(ad);
@@ -116,7 +116,8 @@ public class AdServiceImpl extends BaseServiceImpl <Ad, Long> implements AdServi
 
     @Override
     public List<Ad> publishAd(PublishAdRequest request) throws Exception {
-        List<Ad> adsToPublish = List.of();
+        List<Ad> adsToPublish = new ArrayList<>();
+        Optional<Ad> adToPublish;
         List<String> usersName = Optional.ofNullable(request.getUserName())
                 .orElse(Collections.emptyList());
 
@@ -134,39 +135,37 @@ public class AdServiceImpl extends BaseServiceImpl <Ad, Long> implements AdServi
                 try {
                     webDriver = Utils.initWebDriver(user.get().getPort(), user.get().getName());
                     Pageable limit = PageRequest.of(0, request.getAdsToPublishCount());
-
-                    List<String> productsName = Optional.ofNullable(request.getProducts())
+                    List<String> productsName = Optional.ofNullable(request.getProduct())
                             .orElse(Collections.emptyList());
 
                     if (productsName.isEmpty()) {
-                        Optional<List<CategoryDTO>> categories = this.adManagerClientService.getCategories(GeneralUseEnum.GET_CATEGORIES_ENDPOINT_URL.getValue());
+
+                        Optional<List<CategoryDTO>> categories = this.adManagerClientService.getAvailableCategories(GeneralUseEnum.GET_ALL_CATEGORIES_BY_STATUS_ENDPOINT_URL.getValue());
                         if (categories.isPresent()) {
                             productsName = categories.get().stream().map(CategoryDTO::getName).toList();
                         }
                     }
 
-                    for (String product : productsName) {
-                        adsToPublish = adRepository.findByProductNameAndPublishStatus(product,PublishStatus.NOT_PUBLISHED.getValue(), limit);
-                        int adsPublichedCount = 0;
-                        int adsToPublishCount = request.getAdsToPublishCount();
+                    int adsPublichedCount = 0;
+                    int adsToPublishCount = request.getAdsToPublishCount();
 
-                        if (adsToPublish.size() < adsToPublishCount) {
-                            adsToPublishCount = adsToPublish.size();
-                        }
+                    while (adsPublichedCount < adsToPublishCount) {
 
-                        while (adsPublichedCount < adsToPublishCount) {
-                            Ad adToPublish = adsToPublish.get(adsPublichedCount);
+                        for (String product : productsName) {
+                            adToPublish = adRepository.findFirstByProductNameAndPublishStatus(product,PublishStatus.NOT_PUBLISHED.getValue());
 
-                            if (UtilsHumanActions.openLinkInNewWindowAsHuman(this.webDriver, GeneralUseEnum.REVOLICO_PUBLISH_PATH.getValue())) {
-                                Utils.closeOldWindows(webDriver);
+                            if (adToPublish.isPresent()) {
 
-                                if (UtilsRevolico.publishAd(webDriver, adToPublish, request.getRevolicoCategory())) {
-                                    adRepository.updatePublishStatusById(adToPublish.getId(), PublishStatus.PUBLISHED.getValue());
+                                if (UtilsHumanActions.openLinkInNewWindowAsHuman(this.webDriver, GeneralUseEnum.REVOLICO_PUBLISH_PATH.getValue())) {
+
+                                    if (UtilsRevolico.publishAd(webDriver, adToPublish.get(), request.getRevolicoCategory())) {
+                                        adRepository.updatePublishStatusById(adToPublish.get().getId(), PublishStatus.PUBLISHED.getValue());
+                                        adsToPublish.add(adToPublish.get());
+                                    }
                                 }
                             }
-
-                            adsPublichedCount++;
                         }
+                        adsPublichedCount++;
                     }
                 } catch (Exception e) {
                     throw new RuntimeException(e);

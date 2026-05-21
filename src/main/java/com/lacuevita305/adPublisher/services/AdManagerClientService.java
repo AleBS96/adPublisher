@@ -42,6 +42,18 @@ public class AdManagerClientService {
         return Optional.ofNullable(categories);
     }
 
+    public Optional<List<CategoryDTO>> getAvailableCategories(String endpointUrl) {
+
+        List<CategoryDTO> categories = webClient
+                .get()
+                .uri(endpointUrl)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<CategoryDTO>>() {})
+                .block();
+
+        return Optional.ofNullable(categories);
+    }
+
 
     public Optional<List<User>> getUsers(String endpointUrl) {
         List<User> users = webClient

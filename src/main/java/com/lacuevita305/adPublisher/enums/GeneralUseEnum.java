@@ -6,6 +6,7 @@ public enum GeneralUseEnum {
     ADMANAGER_BASE_URL("http://localhost:8000"),
     GET_USER_ENDPOINT_URL("api/v1/users/{username}"),
     GET_CATEGORIES_ENDPOINT_URL("api/v1/categories"),
+    GET_ALL_CATEGORIES_BY_STATUS_ENDPOINT_URL("api/v1/categories/available"),
     GET_USERS_ENDPOINT_URL("api/v1/users");
 
     private final String value;

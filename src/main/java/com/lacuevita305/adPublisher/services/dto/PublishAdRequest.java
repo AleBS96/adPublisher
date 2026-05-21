@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 @Setter
 public class PublishAdRequest {
-    private List<String> products;
+    private List<String> product;
     private String revolicoCategory;
     private List<String> userName;
     private int adsToPublishCount;
